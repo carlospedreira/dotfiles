@@ -27,6 +27,9 @@ set wildmode=longest,list
 
 set autoread
 
+" Display line numbers
+set number
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MULTIPURPOSE TAB KEY
 " Indent if we're at the beginning of a line. Else, do completion.
