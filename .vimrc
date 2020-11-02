@@ -46,4 +46,3 @@ inoremap <expr> <tab> InsertTabWrapper()
 inoremap <s-tab> <c-n>
 
 map <C-n> :NERDTreeToggle<CR>
-
