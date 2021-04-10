@@ -11,11 +11,11 @@ Plug 'prabirshrestha/asyncomplete.vim'
 
 call plug#end()
 
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " CONFIGURATIONS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set relativenumber				" Show the line number relative to the line with the cursor in front of each line.
+set number
 set nowrap						" When on, lines longer than the width of the window will wrap and displaying continues on the next line.
 
 set tabstop=4					" Number of spaces that a <Tab> in the file counts for.
@@ -44,6 +44,8 @@ set completepopup=highlight:Pmenu,border:off
 " PLUGIN CONFIGURATIONS
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 colorscheme gruvbox
+set background=dark 
+hi Normal guibg=NONE ctermbg=NONE
 
 let g:ale_linters = { 'cs': ['OmniSharp'] }
 
@@ -95,5 +97,6 @@ augroup omnisharp_commands
   autocmd FileType cs nmap <silent> <buffer> <Leader>osst <Plug>(omnisharp_start_server)
   autocmd FileType cs nmap <silent> <buffer> <Leader>ossp <Plug>(omnisharp_stop_server)
 
-  autocmd BufWritePost *.cs OmniSharpCodeFormat 
+  autocmd BufWritePre *.cs OmniSharpCodeFormat
+  autocmd BufWritePre *.cs OmniSharpFixUsings
 augroup END
