@@ -19,3 +19,8 @@ keybind = cmd+digit_6=text:\x02\x36
 keybind = cmd+digit_7=text:\x02\x37
 keybind = cmd+digit_8=text:\x02\x38
 keybind = cmd+digit_9=text:\x02\x39
+
+keybind = cmd+shift+up=text:\x02\x1b[A
+keybind = cmd+shift+down=text:\x02\x1b[B
+keybind = cmd+shift+right=text:\x02\x1b[C
+keybind = cmd+shift+left=text:\x02\x1b[D
