@@ -12,6 +12,6 @@ if status is-interactive
     alias la="eza -lah --icons --group-directories-first"
     alias lt="eza --tree --level=2 --icons"
     alias cat="bat"
-    alias s="sesh picker -tc"
+    alias s='sesh connect (sesh list -tcd | sort -r | fzf)'
     alias sc="sesh connect"
 end
