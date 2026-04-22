@@ -8,3 +8,5 @@ window-padding-x = 16
 window-padding-y = 16,8
 
 confirm-close-surface = false
+
+background-opacity = 1.00
