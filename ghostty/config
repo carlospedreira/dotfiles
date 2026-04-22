@@ -8,3 +8,14 @@ window-padding-x = 16
 window-padding-y = 16,8
 
 confirm-close-surface = false
+
+keybind = cmd+t=text:\x02T
+keybind = cmd+digit_1=text:\x02\x31
+keybind = cmd+digit_2=text:\x02\x32
+keybind = cmd+digit_3=text:\x02\x33
+keybind = cmd+digit_4=text:\x02\x34
+keybind = cmd+digit_5=text:\x02\x35
+keybind = cmd+digit_6=text:\x02\x36
+keybind = cmd+digit_7=text:\x02\x37
+keybind = cmd+digit_8=text:\x02\x38
+keybind = cmd+digit_9=text:\x02\x39
