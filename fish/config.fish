@@ -1,5 +1,6 @@
 if status is-interactive
     starship init fish | source
+    zoxide init fish | source
 
     alias ls="eza -lh --icons --group-directories-first"
     alias ll="eza -lh --icons --group-directories-first"
