@@ -1,0 +1,10 @@
+theme = Catppuccin Mocha
+
+font-family = Geist Mono Nerd Font
+font-size = 16
+font-thicken = true
+
+window-padding-x = 16
+window-padding-y = 16,8
+
+confirm-close-surface = false
