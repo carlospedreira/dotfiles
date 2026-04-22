@@ -9,7 +9,13 @@ window-padding-y = 16,8
 
 confirm-close-surface = false
 
+# Translate mac-native shortcuts into tmux bindings.
+# \x02 is C-b (tmux prefix); the byte(s) after are the tmux key.
+
+# cmd+t → prefix + T (sesh popup, bound in tmux.conf)
 keybind = cmd+t=text:\x02T
+
+# cmd+<N> → prefix + <N> (jump to tmux window N)
 keybind = cmd+digit_1=text:\x02\x31
 keybind = cmd+digit_2=text:\x02\x32
 keybind = cmd+digit_3=text:\x02\x33
@@ -20,6 +26,7 @@ keybind = cmd+digit_7=text:\x02\x37
 keybind = cmd+digit_8=text:\x02\x38
 keybind = cmd+digit_9=text:\x02\x39
 
+# cmd+shift+<arrow> → prefix + <arrow> (select-pane in that direction)
 keybind = cmd+shift+up=text:\x02\x1b[A
 keybind = cmd+shift+down=text:\x02\x1b[B
 keybind = cmd+shift+right=text:\x02\x1b[C
