@@ -8,13 +8,12 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-brew install chezmoi bitwarden-cli
+brew install chezmoi
 
 cat <<EOF
 Bootstrap complete.
 
 Run the following commands:
   eval "\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  bw login
   chezmoi init --apply carlospedreira
 EOF
