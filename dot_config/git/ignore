@@ -1,0 +1,6 @@
+.devcontainer/
+devcontainer.json
+.DS_Store
+*.swp
+*.swo
+*~
