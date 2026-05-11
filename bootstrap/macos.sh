@@ -14,10 +14,6 @@ brew_bin=/opt/homebrew/bin/brew
 eval "$("$brew_bin" shellenv)"
 brew install chezmoi
 
-cat <<EOF
-Bootstrap complete.
+chezmoi init --apply carlospedreira
 
-Run the following commands:
-  eval "\$($brew_bin shellenv)"
-  chezmoi init --apply carlospedreira
-EOF
+echo "Bootstrap complete."
