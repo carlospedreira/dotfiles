@@ -1,0 +1,17 @@
+[user]
+    name = Carlos Pedreira
+    email = carlos.pedreira@example.com
+[init]
+    defaultBranch = main
+[push]
+    autoSetupRemote = true
+[core]
+    editor = vi
+    autocrlf = input
+[color]
+    ui = auto
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit

@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+set -eu
+
+# POSIX login shell baseline
+# Sourced by zsh login shell via ~/.zprofile
+
+# XDG directories
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# PATH additions
+export PATH="$HOME/.local/bin:$PATH"
+
+# Readline config
+export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
+
+# Homebrew
+{{ if eq .chezmoi.os "darwin" -}}
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{- else if eq .chezmoi.os "linux" -}}
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{- end }}
+
+# Private environment (always loaded)
+if [ -r "$XDG_CONFIG_HOME/shell/env.sh" ]; then
+    . "$XDG_CONFIG_HOME/shell/env.sh"
+fi
