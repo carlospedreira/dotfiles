@@ -1,0 +1,5 @@
+{{- with (bitwardenFields "dotfiles-cloak") }}
+{{- range $key, $value := . }}
+{{ $key }}={{ $value | quote }}
+{{- end }}
+{{- end }}
