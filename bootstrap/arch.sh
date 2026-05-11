@@ -10,10 +10,6 @@ fi
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install chezmoi
 
-cat <<EOF
-Bootstrap complete.
+chezmoi init --apply carlospedreira
 
-Run the following commands:
-  eval "\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  chezmoi init --apply carlospedreira
-EOF
+echo "Bootstrap complete."
