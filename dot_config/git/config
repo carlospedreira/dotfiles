@@ -1,17 +1,18 @@
 [user]
     name = Carlos Pedreira
-    email = carlos.pedreira@example.com
+    email = carlospedreira@users.noreply.github.com
+    signingkey = ~/.ssh/id_ed25519.pub
+[gpg]
+    format = ssh
+[gpg "ssh"]
+    allowedSignersFile = ~/.ssh/allowed_signers
+[commit]
+    gpgsign = true
+[tag]
+    gpgsign = true
 [init]
     defaultBranch = main
 [push]
     autoSetupRemote = true
-[core]
-    editor = vi
-    autocrlf = input
-[color]
-    ui = auto
-[alias]
-    st = status
-    co = checkout
-    br = branch
-    ci = commit
+[credential "https://github.com"]
+    username = carlospedreira
