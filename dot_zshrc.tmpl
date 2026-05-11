@@ -1,19 +1,4 @@
-#!/usr/bin/env zsh
-set -euo pipefail
-
 # Zsh interactive shell configuration
-
-# Source profile
-if [ -f "$HOME/.zprofile" ]; then
-    . "$HOME/.zprofile"
-fi
-
-# History
-export HISTSIZE=100000
-export SAVEHIST=100000
-setopt append_history
-setopt hist_ignore_dups
-setopt hist_ignore_space
 
 # Mise activation
 if command -v mise &> /dev/null; then
@@ -25,9 +10,8 @@ if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
 
-# fzf key bindings (if installed)
-if [ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]; then
-    . /opt/homebrew/opt/fzf/shell/key-bindings.zsh
-elif [ -f /usr/share/fzf/key-bindings.zsh ]; then
-    . /usr/share/fzf/key-bindings.zsh
-fi
+alias ls="eza -lh --icons --group-directories-first"
+alias ll="eza -lh --icons --group-directories-first"
+alias la="eza -lah --icons --group-directories-first"
+alias lt="eza --tree --level=2 --icons"
+alias cat="bat"
