@@ -10,13 +10,12 @@ fi
 brew_bin=/opt/homebrew/bin/brew
 [ -x "$brew_bin" ] || brew_bin=/usr/local/bin/brew
 eval "$("$brew_bin" shellenv)"
-brew install chezmoi bitwarden-cli
+brew install chezmoi
 
 cat <<EOF
 Bootstrap complete.
 
 Run the following commands:
   eval "\$($brew_bin shellenv)"
-  bw login
   chezmoi init --apply carlospedreira
 EOF
