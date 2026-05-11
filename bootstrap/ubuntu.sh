@@ -15,7 +15,7 @@ cat <<EOF
 Bootstrap complete.
 
 Run the following commands:
-  eval "\$("\$(command -v brew)" shellenv)"
+  eval "\$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   bw login
   chezmoi init --apply carlospedreira
 EOF

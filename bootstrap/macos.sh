@@ -16,7 +16,7 @@ cat <<EOF
 Bootstrap complete.
 
 Run the following commands:
-  eval "\$("\$(command -v brew)" shellenv)"
+  eval "\$($brew_bin shellenv)"
   bw login
   chezmoi init --apply carlospedreira
 EOF
