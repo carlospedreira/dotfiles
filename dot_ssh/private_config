@@ -1,2 +1,2 @@
-Host * 
-    SetEnv TERM=xterm-256color 
+Host *
+    SetEnv TERM=xterm-256color

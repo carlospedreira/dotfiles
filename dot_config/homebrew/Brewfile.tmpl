@@ -8,8 +8,11 @@ brew "mise"
 brew "opencode"
 brew "powershell"
 brew "starship"
-brew "tailscale"
 brew "zoxide"
+
+{{- if eq .chezmoi.os "linux" }}
+brew "tailscale"
+{{- end }}
 
 cask "claude-code"
 cask "codex"
