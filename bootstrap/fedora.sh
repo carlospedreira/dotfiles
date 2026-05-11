@@ -4,10 +4,10 @@ set -euo pipefail
 sudo dnf install -y curl file git
 
 if ! command -v brew >/dev/null 2>&1; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-eval "$("$(command -v brew)" shellenv)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install chezmoi bitwarden-cli
 
 cat <<EOF
