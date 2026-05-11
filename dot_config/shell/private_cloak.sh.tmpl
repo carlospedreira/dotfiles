@@ -1,5 +1,5 @@
-{{- with (bitwardenFields "dotfiles-cloak") }}
-{{- range $key, $value := . }}
-{{ $key }}={{ $value | quote }}
+{{- with (bitwardenFields "item" "dotfiles-cloak") }}
+{{- range $key, $field := . }}
+{{ $key }}={{ $field.value | quote }}
 {{- end }}
 {{- end }}
