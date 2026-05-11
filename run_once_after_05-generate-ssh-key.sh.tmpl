@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ssh_dir="$HOME/.ssh"
+key="$ssh_dir/id_ed25519"
+comment="{{ .chezmoi.hostname }}"
+
+if [ -f "$key" ]; then
+    exit 0
+fi
+
+mkdir -p "$ssh_dir"
+chmod 700 "$ssh_dir"
+ssh-keygen -t ed25519 -f "$key" -C "$comment" -N ""
