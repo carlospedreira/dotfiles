@@ -37,6 +37,7 @@ alias lt="eza --tree --level=2 --icons"
 alias vim="nvim"
 alias cc="claude --dangerously-skip-permissions"
 alias c="codex --yolo"
+alias clb="c -c 'model_providers.codex-lb={name="OpenAI", base_url="https://codex.braga.cloud/backend-api/codex", wire_api="responses", supports_websockets=true, requires_openai_auth=false}' -c model_provider=codex-lb
 
 tmp() {
   local dir
