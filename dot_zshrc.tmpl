@@ -12,7 +12,7 @@ fi
 
 # Zoxide activation
 if command -v zoxide &> /dev/null; then
-    zoxide init zsh | source
+    eval "$(zoxide init zsh)"
 fi
 
 alias ls="eza -lh --icons --group-directories-first"
