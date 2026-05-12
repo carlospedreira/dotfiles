@@ -42,5 +42,6 @@ alias clb='c -c '\''model_providers.codex-lb={name="OpenAI", base_url="https://c
 tmp() {
   local dir
   dir="$(mktemp -d)" || return
+  cd "$dir" || return
   print -r -- "$dir"
 }
