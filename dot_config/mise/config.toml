@@ -1,3 +1,4 @@
 [tools]
 dotnet = "latest"
 node = "latest"
+"npm:@github/copilot" = "latest"
