@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# One-liner: bash -c "$(curl -fsSL https://raw.githubusercontent.com/carlospedreira/dotfiles/main/bootstrap/macos.sh)"
 set -euo pipefail
 
 if ! command -v brew >/dev/null 2>&1; then

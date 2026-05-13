@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# One-liner: bash -c "$(curl -fsSL https://raw.githubusercontent.com/carlospedreira/dotfiles/main/bootstrap/fedora.sh)"
 set -euo pipefail
 
 sudo dnf install -y curl file git
