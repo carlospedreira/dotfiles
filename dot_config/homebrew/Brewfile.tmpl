@@ -11,10 +11,6 @@ brew "powershell"
 brew "starship"
 brew "zoxide"
 
-{{- if eq .chezmoi.os "linux" }}
-brew "tailscale"
-{{- end }}
-
 cask "claude-code"
 cask "codex"
 
@@ -26,8 +22,6 @@ cask "chatgpt"
 cask "claude"
 cask "cleanshot"
 cask "codex-app"
-cask "elgato-camera-hub"
-cask "elgato-control-center"
 cask "focusrite-control-2"
 cask "font-jetbrains-mono-nerd-font"
 cask "betterdisplay"
