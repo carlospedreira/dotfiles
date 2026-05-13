@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-{{- if eq .chezmoi.os "darwin" }}
-softwareupdate --install --all
-{{- else if eq .chezmoi.os "linux" }}
-if command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update
-    sudo apt-get upgrade -y
-elif command -v dnf >/dev/null 2>&1; then
-    sudo dnf upgrade --refresh -y
-elif command -v pacman >/dev/null 2>&1; then
-    sudo pacman -Syu --noconfirm
-fi
-{{- end }}
-
 if command -v brew >/dev/null 2>&1; then
     brew update
     brew upgrade
