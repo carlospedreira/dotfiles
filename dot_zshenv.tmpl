@@ -28,6 +28,12 @@ case ":$PATH:" in
     *) export PATH="$HOME/.local/bin:$PATH" ;;
 esac
 
+# dotbot
+case ":$PATH:" in
+    *":$HOME/dotbot/bin:"*) ;;
+    *) export PATH="$HOME/dotbot/bin:$PATH" ;;
+esac
+
 # Non-secret environment
 if [ -r "$XDG_CONFIG_HOME/shell/env.sh" ]; then
     . "$XDG_CONFIG_HOME/shell/env.sh"
