@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# One-liner: bash -c "$(curl -fsSL https://raw.githubusercontent.com/carlospedreira/dotfiles/main/bootstrap/ubuntu.sh)"
 set -euo pipefail
 
 sudo apt-get update
