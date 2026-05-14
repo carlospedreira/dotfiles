@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+litellm_base_host="${LITELLM_BASE_HOST:?LITELLM_BASE_HOST must be set. Run this through cloak or export it before running codex-tunnel.}"
+tunnel_target="${CODEX_TUNNEL_TARGET:?CODEX_TUNNEL_TARGET must be set. Run this through cloak or export it before running codex-tunnel.}"
+tunnel_host="${CODEX_TUNNEL_HOST:?CODEX_TUNNEL_HOST must be set. Run this through cloak or export it before running codex-tunnel.}"
+tunnel_port="${CODEX_TUNNEL_PORT:-8443}"
+litellm_base_url="https://${litellm_base_host}:${tunnel_port}"
+tunnel_pid=""
+
+cleanup() {
+    if [ -n "$tunnel_pid" ]; then
+        kill "$tunnel_pid" 2>/dev/null || true
+        wait "$tunnel_pid" 2>/dev/null || true
+    fi
+}
+
+if ! pgrep -f "ssh .*${tunnel_port}:${tunnel_target}.*${tunnel_host}" >/dev/null; then
+    ssh -N \
+        -o ExitOnForwardFailure=yes \
+        -L "${tunnel_port}:${tunnel_target}" \
+        "$tunnel_host" &
+    tunnel_pid="$!"
+    trap cleanup EXIT INT TERM
+
+    sleep 1
+    if ! kill -0 "$tunnel_pid" 2>/dev/null; then
+        wait "$tunnel_pid"
+    fi
+fi
+
+set +e
+codex --yolo \
+    -c model=gpt-5.4 \
+    -c model_reasoning_effort=high \
+    -c "model_providers.litellm={name=\"LiteLLM\", base_url=\"$litellm_base_url\", supports_websockets=false, wire_api=\"responses\", env_key=\"LITELLM_API_KEY\"}" \
+    -c model_provider=litellm \
+    "$@"
+status="$?"
+set -e
+
+cleanup
+trap - EXIT INT TERM
+exit "$status"

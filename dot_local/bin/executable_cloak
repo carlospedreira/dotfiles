@@ -53,17 +53,16 @@ require_command jq
 
 session="$(unlock_bitwarden)"
 
-bw_args=()
-if [ -n "$session" ]; then
-    export BW_SESSION="$session"
-    bw_args=(--session "$session")
-fi
-
 env_args=()
 while IFS= read -r -d '' name && IFS= read -r -d '' value; do
     env_args+=("$name=$value")
 done < <(
-    bw get item "$item_name" "${bw_args[@]}" |
+    if [ -n "$session" ]; then
+        export BW_SESSION="$session"
+        bw get item "$item_name" --session "$session"
+    else
+        bw get item "$item_name"
+    fi |
         jq -j '
             .fields[]?
             | select(.name | test("^[A-Za-z_][A-Za-z0-9_]*$"))
@@ -71,4 +70,8 @@ done < <(
         '
 )
 
-exec env "${env_args[@]}" "$@"
+if [ "${#env_args[@]}" -gt 0 ]; then
+    exec env "${env_args[@]}" "$@"
+else
+    exec "$@"
+fi
