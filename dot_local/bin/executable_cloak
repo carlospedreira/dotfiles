@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+item_name="${CLOAK_BITWARDEN_ITEM:-dotfiles-cloak}"
+
+usage() {
+    printf 'usage: cloak command [args...]\n' >&2
+}
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        printf 'cloak: required command not found: %s\n' "$1" >&2
+        exit 1
+    fi
+}
+
+bitwarden_status() {
+    bw status 2>/dev/null | jq -r '.status'
+}
+
+unlock_bitwarden() {
+    local status
+
+    status="$(bitwarden_status || true)"
+
+    case "$status" in
+        unlocked)
+            if [ -n "${BW_SESSION:-}" ]; then
+                printf '%s\n' "$BW_SESSION"
+            fi
+            ;;
+        locked)
+            bw unlock --raw
+            ;;
+        unauthenticated)
+            printf 'cloak: Bitwarden CLI is not logged in. Run `bw login` first.\n' >&2
+            exit 1
+            ;;
+        *)
+            printf 'cloak: unable to determine Bitwarden CLI status.\n' >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ "$#" -eq 0 ]; then
+    usage
+    exit 2
+fi
+
+require_command bw
+require_command jq
+
+session="$(unlock_bitwarden)"
+
+bw_args=()
+if [ -n "$session" ]; then
+    export BW_SESSION="$session"
+    bw_args=(--session "$session")
+fi
+
+env_args=()
+while IFS= read -r -d '' name && IFS= read -r -d '' value; do
+    env_args+=("$name=$value")
+done < <(
+    bw get item "$item_name" "${bw_args[@]}" |
+        jq -j '
+            .fields[]?
+            | select(.name | test("^[A-Za-z_][A-Za-z0-9_]*$"))
+            | .name, "\u0000", (.value // ""), "\u0000"
+        '
+)
+
+exec env "${env_args[@]}" "$@"
