@@ -1,9 +1,77 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+dotbot_repo="$HOME/Developer/gh/andresharpe/dotbot"
+dotbot_worktrees=()
+dotbot_branches=()
+dotbot_heads=()
+current_worktree=""
+current_head=""
+current_branch=""
+
+add_dotbot_worktree() {
+    if [ -z "$current_worktree" ]; then
+        return
+    fi
+
+    dotbot_worktrees+=("$current_worktree")
+    dotbot_heads+=("$current_head")
+    dotbot_branches+=("${current_branch:-detached HEAD}")
+}
+
+while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+        worktree\ *)
+            add_dotbot_worktree
+            current_worktree="${line#worktree }"
+            current_head=""
+            current_branch=""
+            ;;
+        HEAD\ *)
+            current_head="${line#HEAD }"
+            ;;
+        branch\ refs/heads/*)
+            current_branch="${line#branch refs/heads/}"
+            ;;
+        detached)
+            current_branch="detached HEAD"
+            ;;
+    esac
+done < <(git -C "$dotbot_repo" worktree list --porcelain)
+add_dotbot_worktree
+
+if [ "${#dotbot_worktrees[@]}" -eq 0 ]; then
+    echo "No dotbot worktrees found at $dotbot_repo" >&2
+    exit 1
+fi
+
+echo "Select the dotbot branch/worktree to test:"
+for index in "${!dotbot_worktrees[@]}"; do
+    printf '%2d) %-36s %s\n' \
+        "$((index + 1))" \
+        "${dotbot_branches[$index]}" \
+        "${dotbot_worktrees[$index]}"
+done
+
+while true; do
+    read -r -p "Choice [1-${#dotbot_worktrees[@]}]: " choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] \
+        && [ "$choice" -ge 1 ] \
+        && [ "$choice" -le "${#dotbot_worktrees[@]}" ]; then
+        dotbot_path="${dotbot_worktrees[$((choice - 1))]}"
+        dotbot_branch="${dotbot_branches[$((choice - 1))]}"
+        dotbot_head="${dotbot_heads[$((choice - 1))]}"
+        break
+    fi
+
+    echo "Enter a number between 1 and ${#dotbot_worktrees[@]}."
+done
+
+echo "Testing dotbot branch '$dotbot_branch' at $dotbot_path (${dotbot_head:0:7})"
+
 rm -rf "$HOME/dotbot"
 
-cd "$HOME/Developer/gh/andresharpe/dotbot"
+cd "$dotbot_path"
 pwsh install.ps1
 killall pwsh 2>/dev/null || true
 
