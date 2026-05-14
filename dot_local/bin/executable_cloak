@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-item_name="${CLOAK_BITWARDEN_ITEM:-dotfiles-cloak}"
+item_name="${CLOAK_BITWARDEN_ITEM:-cloak}"
 
 usage() {
     printf 'usage: cloak command [args...]\n' >&2
