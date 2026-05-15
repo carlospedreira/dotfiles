@@ -39,6 +39,14 @@ alias cc="claude --dangerously-skip-permissions"
 alias c="codex --yolo"
 alias clb='c -c '\''model_providers.codex-lb={name="OpenAI", base_url="https://codex.braga.cloud/backend-api/codex", wire_api="responses", supports_websockets=true, requires_openai_auth=false}'\'' -c model_provider=codex-lb'
 
+{{- if eq .chezmoi.os "darwin" }}
+temp() {
+  local temp
+  temp=$(ioreg -rn AppleSmartBattery | awk -F'= ' '/"Temperature"/ {print $2; exit}')
+  awk "BEGIN {printf \"Battery: %.1f C\n\", ($temp / 10) - 273.15}"
+}
+{{- end }}
+
 tmp() {
   local dir
   dir="$(mktemp -d)" || return
