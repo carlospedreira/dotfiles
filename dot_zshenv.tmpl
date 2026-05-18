@@ -38,3 +38,8 @@ esac
 if [ -r "$XDG_CONFIG_HOME/shell/env.sh" ]; then
     . "$XDG_CONFIG_HOME/shell/env.sh"
 fi
+
+# Local secrets (intentionally unmanaged by chezmoi)
+if [ -r "$XDG_CONFIG_HOME/shell/secrets.sh" ]; then
+    . "$XDG_CONFIG_HOME/shell/secrets.sh"
+fi
