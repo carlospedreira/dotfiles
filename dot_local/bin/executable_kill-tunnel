@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-tunnel_target="${CODEX_TUNNEL_TARGET:?CODEX_TUNNEL_TARGET must be set. Run this through cloak or export it before running kill-tunnel.}"
-tunnel_host="${CODEX_TUNNEL_HOST:?CODEX_TUNNEL_HOST must be set. Run this through cloak or export it before running kill-tunnel.}"
-tunnel_port="${CODEX_TUNNEL_PORT:-8443}"
-
-pkill -f "ssh .*${tunnel_port}:${tunnel_target}.*${tunnel_host}"
