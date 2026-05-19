@@ -21,9 +21,6 @@ if [ -z "${HOMEBREW_PREFIX-}" ]; then
     fi
 {{- end }}
 fi
-if [ -n "${HOMEBREW_PREFIX-}" ]; then
-    export PATH="${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH"
-fi
 
 # User bin (idempotent)
 case ":$PATH:" in
