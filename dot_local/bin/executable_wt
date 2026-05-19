@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+worktree_root="${XDG_DATA_HOME:-$HOME/.local/share}/worktrees"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  wt ls
+  wt add <branch>
+  wt rm <branch|worktree>
+  wt connect <branch|worktree>
+
+Worktrees are stored in ~/.local/share/worktrees as <project>-<branch>.
+Branches created by wt add are named worktree/<branch>.
+EOF
+}
+
+die() {
+    printf 'wt: %s\n' "$*" >&2
+    exit 1
+}
+
+repo_root() {
+    git rev-parse --show-toplevel 2>/dev/null || die "not inside a git repository"
+}
+
+project_name() {
+    basename "$(repo_root)"
+}
+
+branch_ref() {
+    local branch="${1:-}"
+    [ -n "$branch" ] || die "missing branch name"
+    case "$branch" in
+        worktree/*) printf '%s\n' "$branch" ;;
+        *) printf 'worktree/%s\n' "$branch" ;;
+    esac
+}
+
+worktree_name() {
+    local branch="${1:-}"
+    [ -n "$branch" ] || die "missing worktree name"
+    branch="${branch#worktree/}"
+    branch="${branch//\//-}"
+    printf '%s-%s\n' "$(project_name)" "$branch"
+}
+
+worktree_path() {
+    printf '%s/%s\n' "$worktree_root" "$(worktree_name "$1")"
+}
+
+resolve_worktree_path() {
+    local value="${1:-}"
+    [ -n "$value" ] || die "missing worktree"
+
+    if [ -d "$worktree_root/$value" ]; then
+        printf '%s/%s\n' "$worktree_root" "$value"
+        return
+    fi
+
+    local path
+    path="$(worktree_path "$value")"
+    [ -d "$path" ] || die "worktree not found: $value"
+    printf '%s\n' "$path"
+}
+
+cmd_ls() {
+    mkdir -p "$worktree_root"
+    git -C "$(repo_root)" worktree list --porcelain |
+        awk -v root="$worktree_root/" '
+            /^worktree / { path = substr($0, 10); next }
+            /^branch / {
+                branch = substr($0, 8)
+                sub("^refs/heads/", "", branch)
+                if (index(path, root) == 1) {
+                    name = path
+                    sub(root, "", name)
+                    printf "%-40s %-32s %s\n", name, branch, path
+                }
+            }
+        '
+}
+
+cmd_add() {
+    local branch short path
+    short="${1:-}"
+    branch="$(branch_ref "$short")"
+    path="$(worktree_path "$short")"
+
+    mkdir -p "$worktree_root"
+    [ ! -e "$path" ] || die "path already exists: $path"
+
+    git -C "$(repo_root)" worktree add -b "$branch" "$path"
+    printf '%s\n' "$path"
+}
+
+cmd_rm() {
+    local value path branch
+    value="${1:-}"
+    path="$(resolve_worktree_path "$value")"
+
+    branch="$(git -C "$path" branch --show-current)"
+    git -C "$(repo_root)" worktree remove "$path"
+
+    if [ -n "$branch" ] && git -C "$(repo_root)" show-ref --verify --quiet "refs/heads/$branch"; then
+        git -C "$(repo_root)" branch -D "$branch" >/dev/null
+    fi
+}
+
+cmd_connect() {
+    local path
+    path="$(resolve_worktree_path "${1:-}")"
+
+    devcontainer up --workspace-folder "$path"
+
+    if command -v code >/dev/null 2>&1; then
+        code "$path"
+    fi
+}
+
+case "${1:-}" in
+    ls) shift; [ "$#" -eq 0 ] || die "wt ls takes no arguments"; cmd_ls ;;
+    add) shift; [ "$#" -eq 1 ] || die "usage: wt add <branch>"; cmd_add "$1" ;;
+    rm) shift; [ "$#" -eq 1 ] || die "usage: wt rm <branch|worktree>"; cmd_rm "$1" ;;
+    connect) shift; [ "$#" -eq 1 ] || die "usage: wt connect <branch|worktree>"; cmd_connect "$1" ;;
+    -h|--help|help|"") usage ;;
+    *) usage >&2; exit 1 ;;
+esac
