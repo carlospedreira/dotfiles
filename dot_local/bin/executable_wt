@@ -120,10 +120,7 @@ cmd_connect() {
     fi
 
     devcontainer up --workspace-folder "$path"
-
-    if command -v code >/dev/null 2>&1; then
-        code "$path"
-    fi
+    devcontainer exec --workspace-folder "$path" zsh -l
 }
 
 case "${1:-}" in
