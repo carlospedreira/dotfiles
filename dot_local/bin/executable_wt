@@ -9,7 +9,8 @@ Usage:
   wt ls
   wt add <branch>
   wt rm <branch|worktree>
-  wt connect <branch|worktree>
+  wt connect [--rebuild] <branch|worktree>
+  wt rebuild <branch|worktree>
 
 Worktrees are stored in ~/.local/share/worktrees as <project>-<branch>.
 Branches created by wt add are named worktree/<branch>.
@@ -113,21 +114,42 @@ cmd_rm() {
 }
 
 cmd_connect() {
+    local rebuild=false value path
+    if [ "${1:-}" = "--rebuild" ]; then
+        rebuild=true
+        shift
+    fi
+
+    value="${1:-}"
+    if ! path="$(resolve_worktree_path "$value" 2>/dev/null)"; then
+        cmd_add "$value" >/dev/null
+        path="$(resolve_worktree_path "$value")"
+    fi
+
+    if [ "$rebuild" = true ]; then
+        devcontainer build "$path"
+    fi
+
+    devcontainer up --workspace-folder "$path"
+    devcontainer exec --workspace-folder "$path" bash -ic 'tmux new-session -A -s "${CONTAINER_NAME:-devcontainer}" cc'
+}
+
+cmd_rebuild() {
     local path
     if ! path="$(resolve_worktree_path "${1:-}" 2>/dev/null)"; then
         cmd_add "${1:-}" >/dev/null
         path="$(resolve_worktree_path "${1:-}")"
     fi
 
-    devcontainer up --workspace-folder "$path"
-    devcontainer exec --workspace-folder "$path" bash -ic cc
+    devcontainer build "$path"
 }
 
 case "${1:-}" in
     ls) shift; [ "$#" -eq 0 ] || die "wt ls takes no arguments"; cmd_ls ;;
     add) shift; [ "$#" -eq 1 ] || die "usage: wt add <branch>"; cmd_add "$1" ;;
     rm) shift; [ "$#" -eq 1 ] || die "usage: wt rm <branch|worktree>"; cmd_rm "$1" ;;
-    connect) shift; [ "$#" -eq 1 ] || die "usage: wt connect <branch|worktree>"; cmd_connect "$1" ;;
+    connect) shift; [ "$#" -ge 1 ] && [ "$#" -le 2 ] || die "usage: wt connect [--rebuild] <branch|worktree>"; cmd_connect "$@" ;;
+    rebuild) shift; [ "$#" -eq 1 ] || die "usage: wt rebuild <branch|worktree>"; cmd_rebuild "$1" ;;
     -h|--help|help|"") usage ;;
     *) usage >&2; exit 1 ;;
 esac
