@@ -195,6 +195,41 @@ cmd_destroy() {
     branch="$(branch_ref "$value")"
 
     if path="$(resolve_workspace_path "$value" 2>/dev/null)"; then
+        local has_uncommitted=0
+        local has_unpushed=0
+
+        if [ -d "$path/.git" ]; then
+            if [ -n "$(git -C "$path" status --porcelain)" ]; then
+                has_uncommitted=1
+            fi
+
+            if [ -n "$(git -C "$path" log HEAD --not --remotes --oneline 2>/dev/null)" ]; then
+                has_unpushed=1
+            fi
+        fi
+
+        if [ "$has_uncommitted" -eq 1 ] || [ "$has_unpushed" -eq 1 ]; then
+            printf 'Warning: Workspace "%s" has ' "$value" >&2
+            if [ "$has_uncommitted" -eq 1 ] && [ "$has_unpushed" -eq 1 ]; then
+                printf 'uncommitted changes and unpushed commits.\n' >&2
+            elif [ "$has_uncommitted" -eq 1 ]; then
+                printf 'uncommitted changes.\n' >&2
+            else
+                printf 'unpushed commits.\n' >&2
+            fi
+            
+            printf 'Are you sure you want to destroy it? [y/N] ' >&2
+            read -r response
+            case "$response" in
+                [yY][eE][sS]|[yY])
+                    # Proceed
+                    ;;
+                *)
+                    die "Aborted."
+                    ;;
+            esac
+        fi
+
         remove_container "$value"
         rm -rf "$path"
     fi
