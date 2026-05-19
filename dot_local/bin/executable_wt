@@ -105,7 +105,7 @@ cmd_add() {
     mkdir -p "$worktree_root"
     [ ! -e "$path" ] || die "path already exists: $path"
 
-    git -C "$root" worktree add -b "$branch" "$path"
+    git -C "$root" worktree add --relative-paths -b "$branch" "$path"
     sync_devcontainer "$path"
     printf '%s\n' "$path"
 }
@@ -143,15 +143,15 @@ cmd_connect() {
 
     if [ "$rebuild" = true ]; then
         if [ "$no_cache" = true ]; then
-            devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+            devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container --build-no-cache
         else
-            devcontainer up --workspace-folder "$path" --remove-existing-container
+            devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container
         fi
     else
-        devcontainer up --workspace-folder "$path"
+        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir
     fi
 
-    devcontainer exec --workspace-folder "$path" bash -ic 'tmux new-session -A -s "${CONTAINER_NAME:-devcontainer}" cc'
+    devcontainer exec --workspace-folder "$path" --mount-git-worktree-common-dir bash -ic 'tmux new-session -A -s "${CONTAINER_NAME:-devcontainer}" cc'
 }
 
 cmd_rebuild() {
@@ -169,9 +169,9 @@ cmd_rebuild() {
 
     sync_devcontainer "$path"
     if [ "$no_cache" = true ]; then
-        devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container --build-no-cache
     else
-        devcontainer up --workspace-folder "$path" --remove-existing-container
+        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container
     fi
 }
 
