@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-worktree_root="${XDG_DATA_HOME:-$HOME/.local/share}/worktrees"
+workspace_root="${XDG_DATA_HOME:-$HOME/.local/share}/workspaces"
 
 usage() {
     cat <<'EOF'
 Usage:
   wt ls
-  wt add <branch>
-  wt rm <branch|worktree>
-  wt connect [-r|--rebuild] [--no-cache] <branch|worktree>
-  wt rebuild [--no-cache] <branch|worktree>
+  wt list
+  wt l
+  wt add <name>
+  wt a <name>
+  wt connect [--rebuild|-r] [--no-cache] [--verbose|-v] <name>
+  wt c [--rebuild|-r] [--no-cache] [--verbose|-v] <name>
+  wt rebuild [--no-cache] <name>
+  wt rb [--no-cache] <name>
+  wt code <name>
+  wt open <name>
+  wt o <name>
+  wt rm <name>
+  wt remove <name>
+  wt r <name>
+  wt destroy <name>
+  wt d <name>
 
-Worktrees are stored in ~/.local/share/worktrees as <project>-<branch>.
-Branches created by wt add are named worktree/<branch>.
+Workspaces are stored in ~/.local/share/workspaces as <project>-<name>.
+Branches created by wt add are named worktree/<name>.
 EOF
 }
 
@@ -26,132 +38,211 @@ repo_root() {
     git rev-parse --show-toplevel 2>/dev/null || die "not inside a git repository"
 }
 
+origin_url() {
+    git -C "$(repo_root)" remote get-url origin 2>/dev/null || die "current repository has no origin remote"
+}
+
 project_name() {
     basename "$(repo_root)"
 }
 
 branch_ref() {
-    local branch="${1:-}"
-    [ -n "$branch" ] || die "missing branch name"
-    case "$branch" in
-        worktree/*) printf '%s\n' "$branch" ;;
-        *) printf 'worktree/%s\n' "$branch" ;;
+    local name="${1:-}"
+    [ -n "$name" ] || die "missing workspace name"
+    case "$name" in
+        worktree/*) printf '%s\n' "$name" ;;
+        *) printf 'worktree/%s\n' "$name" ;;
     esac
 }
 
-worktree_name() {
-    local branch="${1:-}"
-    [ -n "$branch" ] || die "missing worktree name"
-    branch="${branch#worktree/}"
-    branch="${branch//\//-}"
-    printf '%s-%s\n' "$(project_name)" "$branch"
+workspace_name() {
+    local name="${1:-}"
+    [ -n "$name" ] || die "missing workspace name"
+    name="${name#worktree/}"
+    name="${name//\//-}"
+    printf '%s-%s\n' "$(project_name)" "$name"
 }
 
-worktree_path() {
-    printf '%s/%s\n' "$worktree_root" "$(worktree_name "$1")"
+workspace_path() {
+    printf '%s/%s\n' "$workspace_root" "$(workspace_name "$1")"
+}
+
+container_name() {
+    basename "$(workspace_path "$1")"
+}
+
+container_is_usable() {
+    local name="${1:-}" path="${2:-}" target
+    [ -n "$name" ] && [ -n "$path" ] || return 1
+    target="/workspaces/$(project_name)"
+
+    docker inspect "$name" >/dev/null 2>&1 || return 1
+    [ "$(docker inspect -f '{{.State.Running}}' "$name" 2>/dev/null)" = "true" ] || return 1
+    docker inspect -f '{{range .Mounts}}{{println .Source "|" .Destination}}{{end}}' "$name" |
+        awk -F ' \\| ' -v source="$path" -v dest="$target" '$1 == source && $2 == dest { found = 1 } END { exit found ? 0 : 1 }' || return 1
+    docker exec "$name" /bin/sh -lc "test -d '$target/.git'" >/dev/null 2>&1
+}
+
+remove_container() {
+    local value="${1:-}" name
+    name="$(container_name "$value")"
+    docker rm -f "$name" >/dev/null 2>&1 || true
 }
 
 sync_devcontainer() {
     local source_root target_path
     source_root="$(repo_root)"
     target_path="${1:-}"
-    [ -n "$target_path" ] || die "missing worktree path"
+    [ -n "$target_path" ] || die "missing workspace path"
 
     if [ -d "$source_root/.devcontainer" ] && [ "$source_root" != "$target_path" ]; then
         rm -rf "$target_path/.devcontainer"
         cp -R "$source_root/.devcontainer" "$target_path/.devcontainer"
+        node -e '
+const fs = require("fs");
+const file = process.argv[1];
+const project = process.argv[2];
+const config = JSON.parse(fs.readFileSync(file, "utf8"));
+config.workspaceMount = `source=\${localWorkspaceFolder},target=/workspaces/${project},type=bind,consistency=cached`;
+config.workspaceFolder = `/workspaces/${project}`;
+config.runArgs = ["--name=${localWorkspaceFolderBasename}"];
+config.containerEnv = { ...(config.containerEnv || {}), CONTAINER_NAME: "${localWorkspaceFolderBasename}" };
+fs.writeFileSync(file, `${JSON.stringify(config, null, 4)}\n`);
+' "$target_path/.devcontainer/devcontainer.json" "$(project_name)"
     fi
 }
 
-resolve_worktree_path() {
+resolve_workspace_path() {
     local value="${1:-}"
-    [ -n "$value" ] || die "missing worktree"
+    [ -n "$value" ] || die "missing workspace"
 
-    if [ -d "$worktree_root/$value" ]; then
-        printf '%s/%s\n' "$worktree_root" "$value"
+    if [ -d "$workspace_root/$value" ]; then
+        printf '%s/%s\n' "$workspace_root" "$value"
         return
     fi
 
     local path
-    path="$(worktree_path "$value")"
-    [ -d "$path" ] || die "worktree not found: $value"
+    path="$(workspace_path "$value")"
+    [ -d "$path" ] || die "workspace not found: $value"
     printf '%s\n' "$path"
 }
 
+ensure_workspace() {
+    local value="${1:-}" path
+    if ! path="$(resolve_workspace_path "$value" 2>/dev/null)"; then
+        cmd_add "$value" >/dev/null
+        path="$(resolve_workspace_path "$value")"
+    fi
+    printf '%s\n' "$path"
+}
+
+remote_branch_exists() {
+    local branch="${1:-}"
+    git ls-remote --exit-code --heads "$(origin_url)" "$branch" >/dev/null 2>&1
+}
+
 cmd_ls() {
-    mkdir -p "$worktree_root"
-    git -C "$(repo_root)" worktree list --porcelain |
-        awk -v root="$worktree_root/" '
-            /^worktree / { path = substr($0, 10); next }
-            /^branch / {
-                branch = substr($0, 8)
-                sub("^refs/heads/", "", branch)
-                if (index(path, root) == 1) {
-                    name = path
-                    sub(root, "", name)
-                    printf "%-40s %-32s %s\n", name, branch, path
-                }
-            }
-        '
+    local origin path name branch remote
+    origin="$(origin_url)"
+    mkdir -p "$workspace_root"
+
+    for path in "$workspace_root/$(project_name)-"*; do
+        [ -d "$path/.git" ] || continue
+        remote="$(git -C "$path" remote get-url origin 2>/dev/null || true)"
+        [ "$remote" = "$origin" ] || continue
+        name="$(basename "$path")"
+        branch="$(git -C "$path" branch --show-current 2>/dev/null || true)"
+        printf "%-40s %-32s %s\n" "$name" "$branch" "$path"
+    done
 }
 
 cmd_add() {
-    local branch root short path
-    short="${1:-}"
-    root="$(repo_root)"
-    branch="$(branch_ref "$short")"
-    path="$(worktree_path "$short")"
+    local name branch path base_branch
+    name="${1:-}"
+    branch="$(branch_ref "$name")"
+    path="$(workspace_path "$name")"
+    base_branch="$(git -C "$(repo_root)" branch --show-current)"
 
-    mkdir -p "$worktree_root"
+    mkdir -p "$workspace_root"
     [ ! -e "$path" ] || die "path already exists: $path"
 
-    git -C "$root" worktree add --relative-paths -b "$branch" "$path"
+    git clone "$(origin_url)" "$path"
+
+    if git -C "$path" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+        git -C "$path" switch --track "origin/$branch"
+    else
+        git -C "$path" switch -c "$branch" "origin/$base_branch"
+        git -C "$path" push -u origin "$branch"
+    fi
+
     sync_devcontainer "$path"
     printf '%s\n' "$path"
 }
 
 cmd_rm() {
-    local value path branch
+    local value path
     value="${1:-}"
-    path="$(resolve_worktree_path "$value")"
+    if ! path="$(resolve_workspace_path "$value" 2>/dev/null)"; then
+        return 0
+    fi
+    remove_container "$value"
+    rm -rf "$path"
+}
 
-    branch="$(git -C "$path" branch --show-current)"
-    git -C "$(repo_root)" worktree remove "$path"
+cmd_destroy() {
+    local value branch path
+    value="${1:-}"
+    branch="$(branch_ref "$value")"
 
-    if [ -n "$branch" ] && git -C "$(repo_root)" show-ref --verify --quiet "refs/heads/$branch"; then
+    if path="$(resolve_workspace_path "$value" 2>/dev/null)"; then
+        remove_container "$value"
+        rm -rf "$path"
+    fi
+
+    if git -C "$(repo_root)" show-ref --verify --quiet "refs/heads/$branch"; then
         git -C "$(repo_root)" branch -D "$branch" >/dev/null
+    fi
+
+    if remote_branch_exists "$branch"; then
+        git -C "$(repo_root)" push origin --delete "$branch"
     fi
 }
 
 cmd_connect() {
-    local rebuild=false no_cache=false value path
+    local rebuild=false no_cache=false verbose=false value path name
     while [ "$#" -gt 0 ]; do
         case "${1:-}" in
             -r|--rebuild) rebuild=true; shift ;;
             --no-cache) no_cache=true; shift ;;
+            -v|--verbose) verbose=true; shift ;;
             *) break ;;
         esac
     done
 
     value="${1:-}"
-    if ! path="$(resolve_worktree_path "$value" 2>/dev/null)"; then
-        cmd_add "$value" >/dev/null
-        path="$(resolve_worktree_path "$value")"
-    fi
-
-    sync_devcontainer "$path"
-
-    if [ "$rebuild" = true ]; then
-        if [ "$no_cache" = true ]; then
-            devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container --build-no-cache
-        else
-            devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container
-        fi
+    if [ "$verbose" = true ]; then
+        path="$(ensure_workspace "$value")" || die "failed to prepare workspace: $value"
     else
-        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir
+        path="$(ensure_workspace "$value" 2>/dev/null)" || die "failed to prepare workspace: $value; rerun with --verbose for details"
+    fi
+    sync_devcontainer "$path"
+    name="$(container_name "$value")"
+
+    local up_args=("--workspace-folder" "$path")
+    if [ "$rebuild" = true ] || [ "$no_cache" = true ] || ! container_is_usable "$name" "$path"; then
+        up_args+=("--remove-existing-container")
+    fi
+    if [ "$no_cache" = true ]; then
+        up_args+=("--build-no-cache")
     fi
 
-    devcontainer exec --workspace-folder "$path" --mount-git-worktree-common-dir bash -ic 'tmux new-session -A -s "${CONTAINER_NAME:-devcontainer}" cc'
+    if [ "$verbose" = true ]; then
+        devcontainer up "${up_args[@]}"
+    else
+        devcontainer up "${up_args[@]}" >/dev/null 2>&1 || die "devcontainer up failed; rerun with --verbose for details"
+    fi
+
+    devcontainer exec --workspace-folder "$path" bash -i
 }
 
 cmd_rebuild() {
@@ -162,25 +253,58 @@ cmd_rebuild() {
     fi
 
     value="${1:-}"
-    if ! path="$(resolve_worktree_path "$value" 2>/dev/null)"; then
-        cmd_add "$value" >/dev/null
-        path="$(resolve_worktree_path "$value")"
-    fi
-
+    path="$(ensure_workspace "$value")"
     sync_devcontainer "$path"
+
     if [ "$no_cache" = true ]; then
-        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container --build-no-cache
+        devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
     else
-        devcontainer up --workspace-folder "$path" --mount-git-worktree-common-dir --remove-existing-container
+        devcontainer up --workspace-folder "$path" --remove-existing-container
     fi
 }
 
+cmd_code() {
+    local value path authority remote_path docker_context name up_args
+    value="${1:-}"
+    path="$(ensure_workspace "$value")"
+    sync_devcontainer "$path"
+    name="$(container_name "$value")"
+    up_args=("--workspace-folder" "$path")
+    if ! container_is_usable "$name" "$path"; then
+        up_args+=("--remove-existing-container")
+    fi
+    devcontainer up "${up_args[@]}" >/dev/null 2>&1 || die "devcontainer up failed"
+    docker_context="$(docker context show)"
+    authority="$(node -e '
+const path = process.argv[1];
+const context = process.argv[2];
+const config = `${path}/.devcontainer/devcontainer.json`;
+const authority = {
+  hostPath: path,
+  localDocker: false,
+  settings: { context },
+  configFile: {
+    "$mid": 1,
+    fsPath: config,
+    external: `file://${config}`,
+    path: config,
+    scheme: "file"
+  }
+};
+process.stdout.write(Buffer.from(JSON.stringify(authority)).toString("hex"));
+' "$path" "$docker_context")"
+    remote_path="/workspaces/$(project_name)"
+    code --folder-uri "vscode-remote://dev-container+${authority}${remote_path}"
+}
+
 case "${1:-}" in
-    ls) shift; [ "$#" -eq 0 ] || die "wt ls takes no arguments"; cmd_ls ;;
-    add) shift; [ "$#" -eq 1 ] || die "usage: wt add <branch>"; cmd_add "$1" ;;
-    rm) shift; [ "$#" -eq 1 ] || die "usage: wt rm <branch|worktree>"; cmd_rm "$1" ;;
-    connect) shift; [ "$#" -ge 1 ] && [ "$#" -le 3 ] || die "usage: wt connect [-r|--rebuild] [--no-cache] <branch|worktree>"; cmd_connect "$@" ;;
-    rebuild) shift; [ "$#" -ge 1 ] && [ "$#" -le 2 ] || die "usage: wt rebuild [--no-cache] <branch|worktree>"; cmd_rebuild "$@" ;;
+    ls|list|l) shift; [ "$#" -eq 0 ] || die "wt ls takes no arguments"; cmd_ls ;;
+    add|a) shift; [ "$#" -eq 1 ] || die "usage: wt add <name>"; cmd_add "$1" ;;
+    code|open|o) shift; [ "$#" -eq 1 ] || die "usage: wt code <name>"; cmd_code "$1" ;;
+    rm|remove|r) shift; [ "$#" -eq 1 ] || die "usage: wt rm <name>"; cmd_rm "$1" ;;
+    destroy|d) shift; [ "$#" -eq 1 ] || die "usage: wt destroy <name>"; cmd_destroy "$1" ;;
+    connect|c) shift; [ "$#" -ge 1 ] && [ "$#" -le 4 ] || die "usage: wt connect [--rebuild|-r] [--no-cache] [--verbose|-v] <name>"; cmd_connect "$@" ;;
+    rebuild|rb) shift; [ "$#" -ge 1 ] && [ "$#" -le 2 ] || die "usage: wt rebuild [--no-cache] <name>"; cmd_rebuild "$@" ;;
     -h|--help|help|"") usage ;;
     *) usage >&2; exit 1 ;;
 esac
