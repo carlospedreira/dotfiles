@@ -83,15 +83,19 @@ cmd_ls() {
 }
 
 cmd_add() {
-    local branch short path
+    local branch root short path
     short="${1:-}"
+    root="$(repo_root)"
     branch="$(branch_ref "$short")"
     path="$(worktree_path "$short")"
 
     mkdir -p "$worktree_root"
     [ ! -e "$path" ] || die "path already exists: $path"
 
-    git -C "$(repo_root)" worktree add -b "$branch" "$path"
+    git -C "$root" worktree add -b "$branch" "$path"
+    if [ -d "$root/.devcontainer" ]; then
+        cp -R "$root/.devcontainer" "$path/.devcontainer"
+    fi
     printf '%s\n' "$path"
 }
 
@@ -110,7 +114,10 @@ cmd_rm() {
 
 cmd_connect() {
     local path
-    path="$(resolve_worktree_path "${1:-}")"
+    if ! path="$(resolve_worktree_path "${1:-}" 2>/dev/null)"; then
+        cmd_add "${1:-}" >/dev/null
+        path="$(resolve_worktree_path "${1:-}")"
+    fi
 
     devcontainer up --workspace-folder "$path"
 
