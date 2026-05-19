@@ -51,6 +51,18 @@ worktree_path() {
     printf '%s/%s\n' "$worktree_root" "$(worktree_name "$1")"
 }
 
+sync_devcontainer() {
+    local source_root target_path
+    source_root="$(repo_root)"
+    target_path="${1:-}"
+    [ -n "$target_path" ] || die "missing worktree path"
+
+    if [ -d "$source_root/.devcontainer" ] && [ "$source_root" != "$target_path" ]; then
+        rm -rf "$target_path/.devcontainer"
+        cp -R "$source_root/.devcontainer" "$target_path/.devcontainer"
+    fi
+}
+
 resolve_worktree_path() {
     local value="${1:-}"
     [ -n "$value" ] || die "missing worktree"
@@ -94,9 +106,7 @@ cmd_add() {
     [ ! -e "$path" ] || die "path already exists: $path"
 
     git -C "$root" worktree add -b "$branch" "$path"
-    if [ -d "$root/.devcontainer" ]; then
-        cp -R "$root/.devcontainer" "$path/.devcontainer"
-    fi
+    sync_devcontainer "$path"
     printf '%s\n' "$path"
 }
 
@@ -126,11 +136,14 @@ cmd_connect() {
         path="$(resolve_worktree_path "$value")"
     fi
 
+    sync_devcontainer "$path"
+
     if [ "$rebuild" = true ]; then
-        devcontainer build "$path"
+        devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+    else
+        devcontainer up --workspace-folder "$path"
     fi
 
-    devcontainer up --workspace-folder "$path"
     devcontainer exec --workspace-folder "$path" bash -ic 'tmux new-session -A -s "${CONTAINER_NAME:-devcontainer}" cc'
 }
 
@@ -141,7 +154,8 @@ cmd_rebuild() {
         path="$(resolve_worktree_path "${1:-}")"
     fi
 
-    devcontainer build "$path"
+    sync_devcontainer "$path"
+    devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
 }
 
 case "${1:-}" in
