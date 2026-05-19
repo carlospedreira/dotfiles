@@ -3,7 +3,6 @@ set -euo pipefail
 
 rm -rf "$HOME/dotbot"
 
-cd "$HOME/Developer/gh/andresharpe/dotbot"
 pwsh install.ps1
 killall pwsh 2>/dev/null || true
 
