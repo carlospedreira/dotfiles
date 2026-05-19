@@ -120,7 +120,7 @@ cmd_connect() {
     fi
 
     devcontainer up --workspace-folder "$path"
-    devcontainer exec --workspace-folder "$path" zsh -l
+    devcontainer exec --workspace-folder "$path" bash -ic cc
 }
 
 case "${1:-}" in
