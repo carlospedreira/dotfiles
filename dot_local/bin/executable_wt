@@ -9,8 +9,8 @@ Usage:
   wt ls
   wt add <branch>
   wt rm <branch|worktree>
-  wt connect [--rebuild] <branch|worktree>
-  wt rebuild <branch|worktree>
+  wt connect [-r|--rebuild] [--no-cache] <branch|worktree>
+  wt rebuild [--no-cache] <branch|worktree>
 
 Worktrees are stored in ~/.local/share/worktrees as <project>-<branch>.
 Branches created by wt add are named worktree/<branch>.
@@ -124,11 +124,14 @@ cmd_rm() {
 }
 
 cmd_connect() {
-    local rebuild=false value path
-    if [ "${1:-}" = "--rebuild" ]; then
-        rebuild=true
-        shift
-    fi
+    local rebuild=false no_cache=false value path
+    while [ "$#" -gt 0 ]; do
+        case "${1:-}" in
+            -r|--rebuild) rebuild=true; shift ;;
+            --no-cache) no_cache=true; shift ;;
+            *) break ;;
+        esac
+    done
 
     value="${1:-}"
     if ! path="$(resolve_worktree_path "$value" 2>/dev/null)"; then
@@ -139,7 +142,11 @@ cmd_connect() {
     sync_devcontainer "$path"
 
     if [ "$rebuild" = true ]; then
-        devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+        if [ "$no_cache" = true ]; then
+            devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+        else
+            devcontainer up --workspace-folder "$path" --remove-existing-container
+        fi
     else
         devcontainer up --workspace-folder "$path"
     fi
@@ -148,22 +155,32 @@ cmd_connect() {
 }
 
 cmd_rebuild() {
-    local path
-    if ! path="$(resolve_worktree_path "${1:-}" 2>/dev/null)"; then
-        cmd_add "${1:-}" >/dev/null
-        path="$(resolve_worktree_path "${1:-}")"
+    local no_cache=false value path
+    if [ "${1:-}" = "--no-cache" ]; then
+        no_cache=true
+        shift
+    fi
+
+    value="${1:-}"
+    if ! path="$(resolve_worktree_path "$value" 2>/dev/null)"; then
+        cmd_add "$value" >/dev/null
+        path="$(resolve_worktree_path "$value")"
     fi
 
     sync_devcontainer "$path"
-    devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+    if [ "$no_cache" = true ]; then
+        devcontainer up --workspace-folder "$path" --remove-existing-container --build-no-cache
+    else
+        devcontainer up --workspace-folder "$path" --remove-existing-container
+    fi
 }
 
 case "${1:-}" in
     ls) shift; [ "$#" -eq 0 ] || die "wt ls takes no arguments"; cmd_ls ;;
     add) shift; [ "$#" -eq 1 ] || die "usage: wt add <branch>"; cmd_add "$1" ;;
     rm) shift; [ "$#" -eq 1 ] || die "usage: wt rm <branch|worktree>"; cmd_rm "$1" ;;
-    connect) shift; [ "$#" -ge 1 ] && [ "$#" -le 2 ] || die "usage: wt connect [--rebuild] <branch|worktree>"; cmd_connect "$@" ;;
-    rebuild) shift; [ "$#" -eq 1 ] || die "usage: wt rebuild <branch|worktree>"; cmd_rebuild "$1" ;;
+    connect) shift; [ "$#" -ge 1 ] && [ "$#" -le 3 ] || die "usage: wt connect [-r|--rebuild] [--no-cache] <branch|worktree>"; cmd_connect "$@" ;;
+    rebuild) shift; [ "$#" -ge 1 ] && [ "$#" -le 2 ] || die "usage: wt rebuild [--no-cache] <branch|worktree>"; cmd_rebuild "$@" ;;
     -h|--help|help|"") usage ;;
     *) usage >&2; exit 1 ;;
 esac
