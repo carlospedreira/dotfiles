@@ -25,7 +25,8 @@ Usage:
   wt d <name>
 
 Workspaces are stored in ~/.local/share/workspaces as <project>-<name>.
-Branches created by wt add are named worktree/<name>.
+wt add clones the repo and checks out the branch currently checked out
+in the source repo, so workspaces share a branch and rebase together.
 EOF
 }
 
@@ -46,19 +47,9 @@ project_name() {
     basename "$(repo_root)"
 }
 
-branch_ref() {
-    local name="${1:-}"
-    [ -n "$name" ] || die "missing workspace name"
-    case "$name" in
-        worktree/*) printf '%s\n' "$name" ;;
-        *) printf 'worktree/%s\n' "$name" ;;
-    esac
-}
-
 workspace_name() {
     local name="${1:-}"
     [ -n "$name" ] || die "missing workspace name"
-    name="${name#worktree/}"
     name="${name//\//-}"
     printf '%s-%s\n' "$(project_name)" "$name"
 }
@@ -157,22 +148,21 @@ cmd_ls() {
 }
 
 cmd_add() {
-    local name branch path base_branch
+    local name path base_branch
     name="${1:-}"
-    branch="$(branch_ref "$name")"
     path="$(workspace_path "$name")"
     base_branch="$(git -C "$(repo_root)" branch --show-current)"
 
     mkdir -p "$workspace_root"
     [ ! -e "$path" ] || die "path already exists: $path"
 
-    git clone "$(origin_url)" "$path"
-
-    if git -C "$path" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-        git -C "$path" switch --track "origin/$branch"
+    if [ -n "$base_branch" ] && remote_branch_exists "$base_branch"; then
+        git clone --branch "$base_branch" "$(origin_url)" "$path"
     else
-        git -C "$path" switch -c "$branch" "origin/$base_branch"
-        git -C "$path" push -u origin "$branch"
+        git clone "$(origin_url)" "$path"
+        if [ -n "$base_branch" ]; then
+            git -C "$path" switch -c "$base_branch"
+        fi
     fi
 
     sync_devcontainer "$path"
@@ -190,9 +180,8 @@ cmd_rm() {
 }
 
 cmd_destroy() {
-    local value branch path
+    local value path
     value="${1:-}"
-    branch="$(branch_ref "$value")"
 
     if path="$(resolve_workspace_path "$value" 2>/dev/null)"; then
         local has_uncommitted=0
@@ -217,7 +206,7 @@ cmd_destroy() {
             else
                 printf 'unpushed commits.\n' >&2
             fi
-            
+
             printf 'Are you sure you want to destroy it? [y/N] ' >&2
             read -r response
             case "$response" in
@@ -232,14 +221,6 @@ cmd_destroy() {
 
         remove_container "$value"
         rm -rf "$path"
-    fi
-
-    if git -C "$(repo_root)" show-ref --verify --quiet "refs/heads/$branch"; then
-        git -C "$(repo_root)" branch -D "$branch" >/dev/null
-    fi
-
-    if remote_branch_exists "$branch"; then
-        git -C "$(repo_root)" push origin --delete "$branch"
     fi
 }
 
