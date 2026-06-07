@@ -1,9 +1,7 @@
 # Dotfiles
 
-```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/carlospedreira/dotfiles/main/bootstrap/macos.sh)"
-```
+macOS-only dotfiles managed by chezmoi.
 
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/carlospedreira/dotfiles/main/bootstrap/ubuntu.sh)"
+chezmoi init --apply carlospedreira
 ```
