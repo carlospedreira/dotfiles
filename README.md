@@ -1,7 +1,11 @@
 # Dotfiles
 
-macOS-only dotfiles managed by chezmoi.
+Cross-platform dotfiles managed by chezmoi.
 
 ```sh
-chezmoi init --apply carlospedreira
+sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply carlospedreira
 ```
+
+macOS setup uses Homebrew for apps.
+Ubuntu setup installs apt prerequisites.
+CLI tools are managed by mise.
