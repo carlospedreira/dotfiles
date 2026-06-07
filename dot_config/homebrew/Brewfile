@@ -12,7 +12,6 @@ brew "mise"
 brew "neovim"
 brew "opencode"
 brew "powershell"
-brew "starship"
 brew "zoxide"
 
 cask "aldente"
