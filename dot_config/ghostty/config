@@ -1,7 +1,5 @@
 theme = TokyoNight
-{{- if eq .chezmoi.os "darwin" }}
 font-family = JetBrainsMono Nerd Font
-{{- end }}
 
 background-opacity = 0.97
 background-blur = false

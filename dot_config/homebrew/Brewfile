@@ -15,9 +15,6 @@ brew "powershell"
 brew "starship"
 brew "zoxide"
 
-cask "codex"
-
-{{- if eq .chezmoi.os "darwin" }}
 cask "aldente"
 cask "appcleaner"
 cask "bitwarden"
@@ -25,6 +22,7 @@ cask "chatgpt"
 cask "claude"
 cask "cleanshot"
 cask "cmux"
+cask "codex"
 cask "codex-app"
 cask "focusrite-control-2"
 cask "font-jetbrains-mono-nerd-font"
@@ -49,4 +47,3 @@ cask "visual-studio-code"
 cask "windows-app"
 cask "wispr-flow"
 cask "zed"
-{{- end }}

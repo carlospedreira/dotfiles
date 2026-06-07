@@ -1,6 +1,5 @@
-# Zsh interactive shell configuration
+# Zsh interactive shell configuration.
 
-# Oh My Zsh
 export ZSH="${ZSH:-$HOME/.oh-my-zsh}"
 ZSH_THEME=""
 DISABLE_AUTO_UPDATE="true"
@@ -15,18 +14,15 @@ if [ -r "$ZSH/oh-my-zsh.sh" ]; then
     source "$ZSH/oh-my-zsh.sh"
 fi
 
-# Mise activation
-if command -v mise &> /dev/null; then
+if command -v mise >/dev/null 2>&1; then
     eval "$(mise activate zsh)"
 fi
 
-# Starship prompt
-if command -v starship &> /dev/null; then
+if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi
 
-# Zoxide activation
-if command -v zoxide &> /dev/null; then
+if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
 fi
 
@@ -39,17 +35,15 @@ alias cc="claude --dangerously-skip-permissions"
 alias c="codex --yolo"
 alias clb='c -c '\''model_providers.codex-lb={name="OpenAI", base_url="https://codex.braga.cloud/backend-api/codex", wire_api="responses", supports_websockets=true, requires_openai_auth=false}'\'' -c model_provider=codex-lb'
 
-{{- if eq .chezmoi.os "darwin" }}
 temp() {
-  local temp
-  temp=$(ioreg -rn AppleSmartBattery | awk -F'= ' '/"Temperature"/ {print $2; exit}')
-  awk "BEGIN {printf \"Battery: %.1f C\n\", ($temp / 10) - 273.15}"
+    local temp
+    temp=$(ioreg -rn AppleSmartBattery | awk -F'= ' '/"Temperature"/ {print $2; exit}')
+    awk "BEGIN {printf \"Battery: %.1f C\n\", ($temp / 10) - 273.15}"
 }
-{{- end }}
 
 tmp() {
-  local dir
-  dir="$(mktemp -d)" || return
-  cd "$dir" || return
-  print -r -- "$dir"
+    local dir
+    dir="$(mktemp -d)" || return
+    cd "$dir" || return
+    print -r -- "$dir"
 }
