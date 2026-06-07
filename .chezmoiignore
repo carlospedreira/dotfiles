@@ -1,1 +1,6 @@
 /README.md
+{{- if ne .chezmoi.os "darwin" }}
+/.chezmoiscripts/run_before_00-install-homebrew.sh.tmpl
+/.chezmoiscripts/run_onchange_after_10-brew-bundle.sh.tmpl
+/dot_config/homebrew/
+{{- end }}
