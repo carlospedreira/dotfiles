@@ -1,6 +1,8 @@
 /README.md
+{{- if ne (get .chezmoi.osRelease "id") "ubuntu" }}
+/.chezmoiscripts/*_ubuntu_*
+{{- end }}
 {{- if ne .chezmoi.os "darwin" }}
-/.chezmoiscripts/run_before_00-install-homebrew.sh.tmpl
-/.chezmoiscripts/run_onchange_after_10-brew-bundle.sh.tmpl
+/.chezmoiscripts/*_darwin_*
 /dot_config/homebrew/
 {{- end }}
