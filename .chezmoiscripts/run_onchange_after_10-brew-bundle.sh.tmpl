@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Rerun when the Brewfile changes:
-# {{ include "dot_config/homebrew/Brewfile.tmpl" | sha256sum }}
+# {{ include "dot_config/homebrew/Brewfile" | sha256sum }}
 
-for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
     if [ -x "$brew_bin" ]; then
         eval "$("$brew_bin" shellenv)"
         break
@@ -12,7 +12,7 @@ for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linu
 done
 
 if ! command -v brew >/dev/null 2>&1; then
-    echo "brew not found — run bootstrap before chezmoi apply" >&2
+    echo "brew not found - Homebrew setup did not complete" >&2
     exit 1
 fi
 
