@@ -1,4 +1,10 @@
 *.md
+{{- if eq (get . "profile") "container" }}
+/.chezmoiscripts/run_after_all_setup-devpod.sh
+/.chezmoiscripts/run_before_ubuntu_install-devpod.sh
+/.chezmoiscripts/run_before_ubuntu_install-docker.sh
+/dot_config/ghostty/config
+{{- end }}
 {{- if ne (get .chezmoi.osRelease "id") "ubuntu" }}
 /.chezmoiscripts/*_ubuntu_*
 {{- end }}
