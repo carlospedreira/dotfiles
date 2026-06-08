@@ -1,0 +1,18 @@
+# ~/.ssh/config
+Include ~/.ssh/config.d/*
+
+Host ssh.dev.azure.com
+    IdentityFile ~/.ssh/id_rsa
+    User git
+
+Host github.com
+    User git
+
+Host *
+    AddKeysToAgent yes
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/id_ed25519
+    SetEnv TERM=xterm-256color
+{{- if eq .chezmoi.os "darwin" }}
+    UseKeychain yes
+{{- end }}
