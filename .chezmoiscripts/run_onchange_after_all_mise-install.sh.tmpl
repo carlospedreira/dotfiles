@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Rerun when the mise config changes:
-# {{ include "dot_config/mise/config.toml" | sha256sum }}
-
-if command -v mise >/dev/null 2>&1; then
-    mise install
-fi
