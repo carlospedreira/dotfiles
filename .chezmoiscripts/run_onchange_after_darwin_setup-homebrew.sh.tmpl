@@ -4,16 +4,21 @@ set -euo pipefail
 # Rerun when the Brewfile changes:
 # {{ include "dot_config/homebrew/Brewfile" | sha256sum }}
 
-for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
-    if [ -x "$brew_bin" ]; then
-        eval "$("$brew_bin" shellenv)"
+brew_bin=""
+for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [ -x "$candidate" ]; then
+        brew_bin="$candidate"
         break
     fi
 done
 
-if ! command -v brew >/dev/null 2>&1; then
+if [ -z "$brew_bin" ] && command -v brew >/dev/null 2>&1; then
+    brew_bin="$(command -v brew)"
+fi
+
+if [ -z "$brew_bin" ]; then
     echo "brew not found - Homebrew setup did not complete" >&2
     exit 1
 fi
 
-brew bundle --file "$HOME/.config/homebrew/Brewfile"
+"$brew_bin" bundle --file "$HOME/.config/homebrew/Brewfile"
