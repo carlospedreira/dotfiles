@@ -2,7 +2,6 @@
 set -euo pipefail
 
 if ! command -v apt >/dev/null 2>&1; then
-    echo "apt not found; skipping Ubuntu prerequisites" >&2
     exit 0
 fi
 
