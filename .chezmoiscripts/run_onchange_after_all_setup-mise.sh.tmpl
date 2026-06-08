@@ -4,21 +4,10 @@ set -euo pipefail
 # Rerun when the mise config changes:
 # {{ include "dot_config/mise/config.toml" | sha256sum }}
 
-mise_bin=""
-for candidate in "$HOME/.local/bin/mise" /opt/homebrew/bin/mise /usr/local/bin/mise; do
-    if [ -x "$candidate" ]; then
-        mise_bin="$candidate"
-        break
-    fi
-done
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-if [ -z "$mise_bin" ] && command -v mise >/dev/null 2>&1; then
-    mise_bin="$(command -v mise)"
-fi
-
-if [ -z "$mise_bin" ]; then
-    echo "mise not found - install-mise did not complete" >&2
+if ! command -v mise >/dev/null 2>&1; then
     exit 1
 fi
 
-"$mise_bin" install
+mise install
