@@ -1,4 +1,4 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-26.04",
+  "image": "mcr.microsoft.com/devcontainers/base:resolute",
   "postCreateCommand": "sh -c \"$(curl -fsLS https://get.chezmoi.io)\" -- init --apply carlospedreira --override-data '{\"profile\":\"container\"}'"
 }
