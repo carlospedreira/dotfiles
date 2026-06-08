@@ -9,7 +9,8 @@
 /.chezmoiscripts/linux_install-docker.sh
 /.chezmoiscripts/linux_install-tailscale.sh
 /.chezmoiscripts/linux_setup-docker.sh
-/dot_config/ghostty/config
+/.config/ghostty/config
+/.ssh/config
 {{- end }}
 
 {{- if ne .chezmoi.os "linux" }}
