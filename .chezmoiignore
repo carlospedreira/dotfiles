@@ -1,4 +1,5 @@
 *.md
+.devcontainer
 
 {{- if eq (get . "profile") "container" }}
 /.chezmoiscripts/all_setup-devpod.sh
