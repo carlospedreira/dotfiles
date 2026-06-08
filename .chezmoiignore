@@ -1,14 +1,16 @@
 *.md
 {{- if eq (get . "profile") "container" }}
-/.chezmoiscripts/run_after_all_setup-devpod.sh
-/.chezmoiscripts/run_before_ubuntu_install-devpod.sh
-/.chezmoiscripts/run_before_ubuntu_install-docker.sh
+/.chezmoiscripts/all_setup-devpod.sh
+/.chezmoiscripts/linux_install-devpod.sh
+/.chezmoiscripts/linux_install-docker.sh
 /dot_config/ghostty/config
 {{- end }}
-{{- if ne (get .chezmoi.osRelease "id") "ubuntu" }}
-/.chezmoiscripts/*_ubuntu_*
+
+{{- if ne .chezmoi.os "linux" }}
+/.chezmoiscripts/linux_*
 {{- end }}
+
 {{- if ne .chezmoi.os "darwin" }}
-/.chezmoiscripts/*_darwin_*
+/.chezmoiscripts/darwin_*
 /dot_config/homebrew/
 {{- end }}
