@@ -5,6 +5,7 @@
 /.chezmoiscripts/all_setup-devpod.sh
 /.chezmoiscripts/linux_install-devpod.sh
 /.chezmoiscripts/linux_install-docker.sh
+/.chezmoiscripts/linux_setup-docker.sh
 /.chezmoiscripts/linux_install-tailscale.sh
 /dot_config/ghostty/config
 {{- end }}

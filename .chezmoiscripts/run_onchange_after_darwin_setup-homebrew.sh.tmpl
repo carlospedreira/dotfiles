@@ -6,8 +6,6 @@ set -euo pipefail
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
-if ! command -v brew >/dev/null 2>&1; then
-    exit 0
-fi
+command -v brew >/dev/null 2>&1 || exit 0
 
 brew bundle --file "$HOME/.config/homebrew/Brewfile"
