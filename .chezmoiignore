@@ -1,8 +1,10 @@
 *.md
+.dockerignore
 .devcontainer
 
 {{- if eq (get . "profile") "container" }}
 /.chezmoiscripts/all_setup-devpod.sh
+/.chezmoiscripts/all_setup-ssh.sh
 /.chezmoiscripts/linux_install-devpod.sh
 /.chezmoiscripts/linux_install-docker.sh
 /.chezmoiscripts/linux_install-tailscale.sh

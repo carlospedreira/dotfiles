@@ -1,16 +1,6 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/base:resolute",
-  "postCreateCommand": ".devcontainer/ubuntu/post-create.sh",
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh",
-        "terminal.integrated.profiles.linux": {
-          "zsh": {
-            "path": "/usr/bin/zsh"
-          }
-        }
-      }
-    }
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../.."
   }
 }
