@@ -1,4 +1,4 @@
-/README.md
+*.md
 {{- if ne (get .chezmoi.osRelease "id") "ubuntu" }}
 /.chezmoiscripts/*_ubuntu_*
 {{- end }}
