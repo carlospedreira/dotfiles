@@ -3,6 +3,6 @@ set -euo pipefail
 
 {{- if eq (get .chezmoi.osRelease "id") "ubuntu" }}
 sudo apt update
-sudo apt install -y curl git ca-certificates libatomic1 libicu78 build-essential bubblewrap zsh
+sudo apt install -y curl git ca-certificates libatomic1 libicu78 build-essential bubblewrap passwd zsh
 sudo apt autoremove -y
 {{- end }}

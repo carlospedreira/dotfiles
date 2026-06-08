@@ -1,4 +1,16 @@
 {
   "image": "mcr.microsoft.com/devcontainers/base:resolute",
-  "postCreateCommand": "mkdir -p \"$HOME/.local/bin\" && sh -c \"$(curl -fsLS https://get.chezmoi.io)\" -- -b \"$HOME/.local/bin\" init --apply carlospedreira --override-data '{\"profile\":\"container\"}'"
+  "postCreateCommand": "mkdir -p \"$HOME/.local/bin\" && sh -c \"$(curl -fsLS https://get.chezmoi.io)\" -- -b \"$HOME/.local/bin\" && \"$HOME/.local/bin/chezmoi\" -S \"${containerWorkspaceFolder}\" init --apply --override-data '{\"profile\":\"container\"}'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/usr/bin/zsh"
+          }
+        }
+      }
+    }
+  }
 }
