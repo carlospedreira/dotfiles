@@ -4,3 +4,4 @@
 
 [data]
     profile = {{ get . "profile" | quote }}
+    githubUser = {{ default "carlospedreira" (get . "githubUser") | quote }}

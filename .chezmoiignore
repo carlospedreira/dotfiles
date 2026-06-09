@@ -8,6 +8,7 @@
 /.chezmoiscripts/linux_install-devpod.sh
 /.chezmoiscripts/linux_install-docker.sh
 /.chezmoiscripts/linux_install-tailscale.sh
+/.chezmoiscripts/linux_setup-authorized-keys.sh
 /.chezmoiscripts/linux_setup-docker.sh
 /.config/ghostty/config
 /.ssh/config
