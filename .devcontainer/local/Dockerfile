@@ -17,7 +17,7 @@ RUN if ! command -v chezmoi >/dev/null 2>&1; then \
         --source "$PWD" \
         init \
         --apply \
-        --override-data '{"profile":"container"}' \
+        --promptString profile=container \
     && rm -rf \
         "$HOME/.npm" \
         "$HOME/.cache/mise" \
