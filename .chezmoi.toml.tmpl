@@ -3,5 +3,5 @@
     autoPush = true
 
 [data]
-    profile = {{ get . "profile" | quote }}
-    githubUser = {{ default "carlospedreira" (get . "githubUser") | quote }}
+    profile = {{ promptString "profile" "" | quote }}
+    githubUser = {{ promptString "githubUser" "carlospedreira" | quote }}
