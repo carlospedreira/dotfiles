@@ -19,5 +19,5 @@
 
 {{- if ne .chezmoi.os "darwin" }}
 /.chezmoiscripts/darwin_*
-/dot_config/homebrew/
+/.config/homebrew/
 {{- end }}
