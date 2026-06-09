@@ -1,9 +1,10 @@
 [user]
     name = Carlos Pedreira
     email = carlospedreira@users.noreply.github.com
-    signingkey = ~/.ssh/id_ed25519.pub
 [gpg]
     format = ssh
+[gpg "ssh"]
+    defaultKeyCommand = sh -c 'ssh-add -L | awk "/^ssh-ed25519 / { print \"key::\" $0; exit }"'
 [commit]
     gpgsign = true
 [tag]
