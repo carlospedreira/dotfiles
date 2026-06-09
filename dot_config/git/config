@@ -4,7 +4,7 @@
 [gpg]
     format = ssh
 [gpg "ssh"]
-    defaultKeyCommand = sh -c 'ssh-add -L | awk "/^ssh-ed25519 / { print \"key::\" $0; exit }"'
+    defaultKeyCommand = ssh-add -L | sed -n 's/^\(ssh-ed25519 .*\)$/key::\1/p'
 [commit]
     gpgsign = true
 [tag]
