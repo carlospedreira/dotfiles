@@ -2,6 +2,10 @@
 .dockerignore
 .devcontainer
 
+{{- $kernelOSRelease := lower (default "" (get .chezmoi.kernel "osrelease")) }}
+{{- $kernelVersion := lower (default "" (get .chezmoi.kernel "version")) }}
+{{- $isWSL := and (eq .chezmoi.os "linux") (or (contains "microsoft" $kernelOSRelease) (contains "microsoft" $kernelVersion)) }}
+
 {{- if eq (get . "profile") "container" }}
 /.chezmoiscripts/all_setup-devpod.sh
 /.chezmoiscripts/all_setup-ssh.sh
@@ -15,6 +19,10 @@
 
 {{- if ne .chezmoi.os "linux" }}
 /.chezmoiscripts/linux_*
+{{- end }}
+
+{{- if not $isWSL }}
+/.chezmoiscripts/wsl_*
 {{- end }}
 
 {{- if ne .chezmoi.os "darwin" }}
