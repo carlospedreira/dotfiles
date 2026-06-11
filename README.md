@@ -1,11 +1,13 @@
 # Dotfiles
 
-```sh
-sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply carlospedreira
-```
+Chezmoi-managed personal configuration.
 
-For containers:
+This repository owns user-level configuration only:
 
-```sh
-sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply carlospedreira --promptString profile=container
-```
+- shell configuration
+- Git configuration
+- SSH client configuration
+- application configuration
+
+Machine setup, package installation, services, and host-specific state live in
+`carlospedreira/ansible`.
