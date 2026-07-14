@@ -1,3 +1,5 @@
+brew "eza"
+
 cask "cleanshot"
 cask "codex-app"
 cask "ghostty"
