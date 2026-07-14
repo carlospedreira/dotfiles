@@ -6,14 +6,8 @@ Install and apply the dotfiles:
 chezmoi init --apply carlospedreira
 ```
 
-Open a new shell, then install the Homebrew packages:
+Open a new shell, then install the packages and applications:
 
 ```sh
 brew bundle
-```
-
-Install the mise tools:
-
-```sh
-mise install
 ```
