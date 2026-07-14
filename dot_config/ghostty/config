@@ -1,7 +1,5 @@
-theme = TokyoNight
-font-family = JetBrainsMono Nerd Font
-
-background-opacity = 0.97
 background-blur = false
+background-opacity = 0.97
+font-size = 17
+font-thicken = true
 
-keybind = super+shift+r=prompt_tab_title
