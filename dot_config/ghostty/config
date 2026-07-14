@@ -1,5 +1,6 @@
 background-blur = false
 background-opacity = 0.97
+font-family = GeistMono Nerd Font Mono
 font-size = 17
 font-thicken = true
 
