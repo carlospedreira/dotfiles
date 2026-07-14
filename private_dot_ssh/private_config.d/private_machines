@@ -1,29 +1,11 @@
-Host ubuntu
-    HostName ubuntu
-    User carlos
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+Host dwight
+    HostName 10.10.10.20
 
-Host fedora
-    HostName fedora
-    User carlos
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+Host erin
+    HostName 10.10.10.30
 
-Host wsl
-    HostName wsl
-    User carlos
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+Host jim
+    HostName 10.10.10.40
 
-Host raspberry
-    HostName raspberry
-    User carlos
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
-
-Host blackberry
-    HostName blackberry
-    User carlos
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+Host work
+    HostName 10.10.10.41
