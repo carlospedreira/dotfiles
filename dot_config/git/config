@@ -1,10 +1,9 @@
 [user]
     name = Carlos Pedreira
     email = carlospedreira@users.noreply.github.com
+    signingKey = ~/.ssh/id_ed25519.pub
 [gpg]
     format = ssh
-[gpg "ssh"]
-    defaultKeyCommand = sh -c \"ssh-add -L | sed -n '/^ssh-ed25519 /p' | head -n 1 | sed 's/^/key::/'\"
 [commit]
     gpgsign = true
 [tag]
@@ -13,7 +12,5 @@
     defaultBranch = main
 [push]
     autoSetupRemote = true
-[includeIf "gitdir:~/Developer/az/"]
-    path = ~/Developer/az/.gitconfig
-[includeIf "gitdir/i:D:/az/"]
-    path = D:/az/.gitconfig
+[includeIf "gitdir:~/Code/az/"]
+    path = ~/Code/az/.gitconfig
