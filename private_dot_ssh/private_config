@@ -8,9 +8,11 @@ Host ssh.dev.azure.com
 Host github.com
     User git
 
+Host * !ssh.dev.azure.com
+    IdentityFile ~/.ssh/id_ed25519
+
 Host *
     AddKeysToAgent yes
     IdentitiesOnly yes
-    IdentityFile ~/.ssh/id_ed25519
     SetEnv TERM=xterm-256color
     UseKeychain yes
