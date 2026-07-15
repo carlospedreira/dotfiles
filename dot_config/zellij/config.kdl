@@ -1,0 +1,5 @@
+default_layout "compact"
+show_release_notes false
+show_startup_tips false
+simplified_ui true
+theme "catppuccin-mocha"
