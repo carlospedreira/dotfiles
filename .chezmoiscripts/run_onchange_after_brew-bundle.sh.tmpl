@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Brewfile checksum: {{ includeTemplate "dot_config/homebrew/Brewfile.tmpl" . | sha256sum }}
+
+set -eu
+
+command -v brew >/dev/null 2>&1 || exit 0
+
+brew bundle --file "$HOME/.config/homebrew/Brewfile" >/dev/null 2>&1 || true
