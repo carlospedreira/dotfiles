@@ -22,10 +22,16 @@ brew bundle
 
 ## Ubuntu
 
-Install Git and unzip:
+Install Git, unzip, and Zsh:
 
 ```sh
-sudo apt update && sudo apt install -y git unzip
+sudo apt update && sudo apt install -y git unzip zsh
+```
+
+Set Zsh as the login shell:
+
+```sh
+chsh -s /bin/zsh
 ```
 
 Install Docker:
