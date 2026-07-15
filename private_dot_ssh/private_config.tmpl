@@ -15,4 +15,6 @@ Host *
     AddKeysToAgent yes
     IdentitiesOnly yes
     SetEnv TERM=xterm-256color
+{{ if eq .chezmoi.os "darwin" }}
     UseKeychain yes
+{{ end }}

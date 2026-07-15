@@ -1,5 +1,13 @@
 # Dotfiles
 
+**Prerequisites:**
+
+- Homebrew installed
+- Chezmoi installed
+- Zsh installed and set as the login shell
+
+---
+
 Install and apply the dotfiles:
 
 ```sh

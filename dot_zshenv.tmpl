@@ -2,14 +2,16 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
-if [ -z "${HOMEBREW_PREFIX-}" ]; then
-    for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
-        if [ -x "$brew_bin" ]; then
-            eval "$("$brew_bin" shellenv)"
-            break
-        fi
-    done
-    unset brew_bin
+if ! command -v brew >/dev/null 2>&1; then
+{{ if eq .chezmoi.os "darwin" }}
+    export PATH="/opt/homebrew/bin:$PATH"
+{{ else if eq .chezmoi.os "linux" }}
+    export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+{{ end }}
+fi
+
+if command -v brew >/dev/null 2>&1; then
+    eval "$(brew shellenv zsh)"
 fi
 
 case ":$PATH:" in

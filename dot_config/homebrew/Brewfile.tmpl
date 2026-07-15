@@ -11,11 +11,13 @@ brew "powershell"
 brew "ripgrep"
 brew "zoxide"
 
-cask "cleanshot"
 cask "claude-code"
 cask "codex"
-cask "chatgpt"
 cask "font-geist-mono-nerd-font"
+
+{{ if eq .chezmoi.os "darwin" -}}
+cask "cleanshot"
+cask "chatgpt"
 cask "ghostty"
 cask "helium-browser"
 cask "moonlight"
@@ -24,3 +26,4 @@ cask "raycast"
 cask "spotify"
 cask "visual-studio-code"
 cask "wispr-flow"
+{{ end -}}
