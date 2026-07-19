@@ -1,1 +1,1 @@
-allow-scripts=node-pty
+allow-scripts=node-pty,@anthropic-ai/claude-code,opencode-ai,msgpackr-extract
