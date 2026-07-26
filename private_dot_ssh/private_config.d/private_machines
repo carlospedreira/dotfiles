@@ -1,11 +1,14 @@
-Host dwight
+Host beetle
+    HostName 10.10.10.10
+
+Host forest
     HostName 10.10.10.20
 
-Host erin
+Host parrot
     HostName 10.10.10.30
 
-Host jim
+Host rocket
     HostName 10.10.10.40
 
-Host work
-    HostName 10.10.10.41
+Host office
+    HostName 10.10.10.50
