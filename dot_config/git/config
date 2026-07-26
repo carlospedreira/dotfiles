@@ -12,5 +12,3 @@
     defaultBranch = main
 [push]
     autoSetupRemote = true
-[includeIf "gitdir:~/Code/az/"]
-    path = ~/Code/az/.gitconfig
