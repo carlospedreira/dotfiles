@@ -1,4 +1,4 @@
-Host beetle
+Host raspberry
     HostName 10.10.10.10
 
 Host forest
@@ -10,5 +10,5 @@ Host parrot
 Host rocket
     HostName 10.10.10.40
 
-Host office
+Host work
     HostName 10.10.10.50
