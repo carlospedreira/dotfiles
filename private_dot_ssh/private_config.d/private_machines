@@ -1,3 +1,7 @@
+Host ucg
+    HostName 10.10.10.1
+    User root
+
 Host raspberry
     HostName 10.10.10.10
 
