@@ -8,7 +8,7 @@ Host raspberry
 Host forest
     HostName 10.10.10.20
 
-Host parrot
+Host hermes
     HostName 10.10.10.30
 
 Host rocket
