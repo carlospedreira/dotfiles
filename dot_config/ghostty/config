@@ -1,6 +1,6 @@
 background-blur = false
 background-opacity = 0.97
-font-family = Monaco
+font-family = SF Mono
 font-size = 16
 font-thicken = true
 theme = TokyoNight
